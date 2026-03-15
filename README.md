@@ -1,9 +1,19 @@
-# agent_coding
 
-Dave's Cursor / Claude prompts.
+# Dave's Agent Coding Prompts 
 
 `rules.md` - This goes into every context. For Cursor this is `.cursorrules`.  
-`commands/*.md` - These are called into a context by name. For example, in Cursor, "/kpop".
+`commands/*.md` - These are called into a context by name. For example, "/kpop".
+
+## Cursor setup
+```
+cp rules.md /path/to/your/repo/.cursorrules
+mkdir -p /path/to/your/repo/.cursor/commands
+cp commands/*.md /path/to/your/repo/.cursor/commands
+```
+
+## Claude setup
+Sorry. I use Cursor still. You'll see why below.
+But you could probably adapt this to Claude Code.
 
 # How I Code (20260315)
 
@@ -34,7 +44,7 @@ This implements the plan. When this is done, the code should pass all linters an
 ## Review
 In a fresh context, I'll call
 ```
-[/review_1](https://github.com/dsweet99/agent_coding/blob/main/commands/review_1.md)
+/review_1
 ```
 ```
 /kpop Check review.md
@@ -113,5 +123,35 @@ or you can be more focused:
 /kpop Falsify each of the ideas above.
 ```
 
+## Memory
+If you look at the [rules](https://github.com/dsweet99/agent_coding/blob/main/rules.md), you'll see the "First rule of Cursor" is
+ to read in `style.md`, yet there is no `style.md` in this repo. The file `style.md` is created by the [/learn](https://github.com/dsweet99/agent_coding/blob/main/commands/learn.md)
+ command.
 
+At the end of a planning or coding session, I call
+```
+/learn
+```
+This instructs the agent to identify and store a few new things it learned during this session. "New things" come from my expressing
+ me preferences, from `/kpop` experiments, and from feedback from the linters and tests. You'll notice the stored information pop up
+ in future sessions.
+
+## Global information / Stopping "Wack-A-Mole"
+Agents get a very localized view of a problem since their context is built from snippets of code that is thinks it needs to
+ solve a particular problem. What's gets lost is the "big picture":
+
+- The overall plan for the codebase
+- The overall structure of the codebase
+
+This leads to steadily-increasing complexity, duplicate code, leaky abstractions, and this annoying feeling that
+ you're playing wack-a-mole with the agent.
+
+To fix these problems, I do two things:
+- `grounding.md`: I manually maintain files called `grounding.md` in the repo. I put them in any subdirectory where I think they're needed. They
+ contain the broad objectives and constraints of the project -- not implementation details.  For example, I might write,
+  "This module contains statistical sampling functions." or "These functions should stay O(N)." At planning and review time the agent will
+  be instructed to look at `grounding.md` and will be less likely to put non-statistical sampling functions in that module. KPop will be
+  more likely to measure the scaling of a function it thinks might violate the O(N) constraint.
+- `kiss check`(https://github.com/dsweet99/kiss): `kiss` is a linter I created to help solve this problem. It looks at the full codebase, builds a
+  graph, and reports to the agent problems of too much complexity, duplicate code, orphaned code, and low test coverage.
 

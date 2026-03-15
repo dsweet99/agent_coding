@@ -1,0 +1,52 @@
+from __future__ import annotations
+
+from pathlib import Path
+from unittest.mock import Mock
+
+import malvin.agent_stream as stream_module
+import pytest
+from stream_json_helpers import assistant_final, assistant_partial
+
+
+def test_parse_stream_line_returns_partial_text_for_timestamped_assistant() -> None:
+    line = (
+        '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Hello"}]},'
+        '"timestamp_ms":123}\n'
+    )
+
+    text, is_partial = stream_module.parse_stream_line(line, saw_partial_assistant=False)
+
+    assert text == "Hello"
+    assert is_partial is True
+
+
+def test_stream_command_converts_stream_json_to_human_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter(
+        [
+            assistant_partial("Hello"),
+            assistant_partial(" there", timestamp=2),
+            assistant_final("Hello there"),
+            '{"type":"result","subtype":"success","result":"Hello there"}\n',
+        ]
+    )
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+    log_path = tmp_path / "stream.log"
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=log_path,
+    )
+
+    assert exit_code == 0
+    assert output == "Hello there"
+    assert fake_stdin.write.call_args.args[0] == "Hello\n"
+    log_text = log_path.read_text(encoding="utf-8")
+    assert "Hello there" in log_text
+    assert '{"type":' not in log_text

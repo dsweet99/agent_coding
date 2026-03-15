@@ -3,16 +3,7 @@ MANDATORY FIRST ACTION: When the user sends their first request in a conversatio
 
 --
 
-After every user request, briefly define the problem you need to solve. Write
-
-PROBLEM: P
-DIFFICULTY: D
-
-where P is a brief statement of the problem, and D is a difficult level 1-5.
-
---
-
-### Cursor Rule: Claims vs Hypotheses
+### Claims vs Hypotheses
 
 - Label uncertain reasoning as Hypothesis; only use Claim with explicit evidence.
 - Claims must cite evidence (code refs, logs, metrics). Otherwise, downgrade to Hypothesis.

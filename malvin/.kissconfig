@@ -1,0 +1,29 @@
+[gate]
+duplication_enabled = true
+min_similarity = 0.95
+orphan_module_enabled = true
+test_coverage_threshold = 95
+
+[python]
+boolean_parameters = 2
+branches_per_function = 5
+calls_per_function = 15
+concrete_types_per_file = 5
+cycle_size = 0
+decorators_per_function = 6
+dependency_depth = 5
+functions_per_file = 10
+imported_names_per_file = 50
+indirect_dependencies = 96
+interface_types_per_file = 1
+keyword_only_args = 5
+local_variables = 10
+max_indentation = 4
+methods_per_class = 10
+nested_function_depth = 2
+positional_args = 4
+return_values_per_function = 2
+returns_per_function = 10
+statements_per_file = 200
+statements_per_function = 30
+statements_per_try_block = 10

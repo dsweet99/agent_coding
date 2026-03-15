@@ -1,7 +1,7 @@
 
-# Dave's Agent Coding Prompts 
+# Dave's Agent Coding Prompts
 
-`rules.md` - This goes into every context. For Cursor this is `.cursorrules`.  
+`rules.md` - This goes into every context. For Cursor this is `.cursorrules`.
 `commands/*.md` - These are called into a context by name. For example, "/kpop".
 
 ## Cursor setup
@@ -47,8 +47,9 @@ In a fresh context, I'll call
 /review_1
 ```
 ```
-/kpop Check review.md
+/kpop Falsify review.md
 ```
+(odd phrasing, but go with it)
 Then, back in the implementer's context, I'll call
 ```
 /concerns
@@ -157,4 +158,3 @@ To fix these problems, I do two things:
   more likely to measure the scaling of a function it thinks might violate the O(N) constraint.
 - `kiss check`(https://github.com/dsweet99/kiss): `kiss` is a linter that looks at the full codebase, builds a
   graph, and reports to the agent problems of too much complexity, duplicate code, orphaned code, and low test coverage.
-

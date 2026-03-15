@@ -48,7 +48,7 @@ I repeat these steps -- `/review_1`, `/kpop`, `/concerns` -- until the reviewer 
 Then I repeat them *again* using `/review_2`, which is a more fine-grained review.
 
 ### Serious Coding
-The whole **Code** section can be done by a simple Python script calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
+The **Code** and **Review** sections can be combined and automated by a simple Python script calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
 
 ```
   nohup ./write_the_code.py &> log

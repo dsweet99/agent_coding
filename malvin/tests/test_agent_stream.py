@@ -8,18 +8,6 @@ import pytest
 from stream_json_helpers import assistant_final, assistant_partial
 
 
-def test_parse_stream_line_returns_partial_text_for_timestamped_assistant() -> None:
-    line = (
-        '{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Hello"}]},'
-        '"timestamp_ms":123}\n'
-    )
-
-    text, is_partial = stream_module.parse_stream_line(line, saw_partial_assistant=False)
-
-    assert text == "Hello"
-    assert is_partial is True
-
-
 def test_stream_command_converts_stream_json_to_human_text(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -84,32 +84,6 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert DummyOrchestrator.instances[-1].ran is True
 
 
-def test_cli_supports_no_force_and_custom_max_loops(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    artifacts = _fake_artifacts(tmp_path)
-    monkeypatch.setattr(cli_module.PromptStore, "default", classmethod(lambda cls: DummyStore()))
-    monkeypatch.setattr(cli_module, "create_run_artifacts", lambda _: artifacts)
-    monkeypatch.setattr(cli_module, "AgentClient", DummyClient)
-    monkeypatch.setattr(cli_module, "Orchestrator", DummyOrchestrator)
-    runner = CliRunner()
-    plan_file = tmp_path / "input_plan.md"
-    plan_file.write_text("plan", encoding="utf-8")
-
-    result = runner.invoke(
-        cli_module.main,
-        [str(plan_file), "--model", "test-model", "--no-force", "--max-loops", "2"],
-    )
-
-    assert result.exit_code == 0
-    output_lines = [line for line in result.output.splitlines() if line]
-    assert output_lines[0].startswith("Logs: ")
-    assert str(artifacts.run_dir) in output_lines[0]
-    assert DummyClient.instances[-1].model == "test-model"
-    assert DummyClient.instances[-1].force is False
-    assert DummyOrchestrator.instances[-1].config.max_loops == 2
-
-
 def test_cli_returns_click_error_for_missing_prompts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

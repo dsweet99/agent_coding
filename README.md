@@ -34,7 +34,7 @@ This implements the plan. When this is done, the code should pass all linters an
 ## Review
 In a fresh context, I'll call
 ```
-/review_1
+[/review_1](https://github.com/dsweet99/agent_coding/blob/main/commands/review_1.md)
 ```
 ```
 /kpop Check review.md

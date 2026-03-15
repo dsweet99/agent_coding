@@ -20,7 +20,7 @@ If it's a big plan, I'll run
 ```
 /kpop Check plan.md
 ```
-KPop (named after Karl Popper) shows up a lot. It instructs the agent to treat the text as a set of hypotheses
+[KPop](https://github.com/dsweet99/agent_coding/blob/main/commands/kpop.md) (named for [Karl Popper](https://en.wikipedia.org/wiki/Karl_Popper)) shows up a lot in my work. It instructs the agent to treat the text as a set of hypotheses
  and to try to falsify them. You might see the agent look for counter-evidence in the code, in the docs, or in
  small, bespoke tests that it writes.
 

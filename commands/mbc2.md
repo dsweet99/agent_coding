@@ -1,4 +1,4 @@
-# C2
+# MBC2
 You are stuck producing small local variations of the same idea.
 
 Do NOT introduce new frameworks, objectives, or representations.

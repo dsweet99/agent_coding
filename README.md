@@ -39,7 +39,7 @@ In a fresh context, I'll call
 ```
 /kpop Check review.md
 ```
-Then, back in the implementer's context I'll call
+Then, back in the implementer's context, I'll call
 ```
 /concerns
 ```
@@ -67,7 +67,7 @@ the agent can see the problem. Then I'll type something like
 /kpop Fix the bug. You have a budget of 30 hypotheses.
 ```
 If you give the agent a budget, it'll keep working instead of a pausing and asking, `Do you want me to try this?` or
-whatever it's trained to do to save tokens. It'll really stop at 30, though, so it won't actually go off the rails
+whatever it's trained to do to save tokens. It'll really stop at 30 hypotheses, though, so it won't go off the rails
 and spend all your tokens.
 
 It'll generate one hypothesis at a time and test it, either by running the broken code or searching for evidence in the logs
@@ -85,10 +85,10 @@ Then I'll say
 /kpop Reduce the time by 50%. You have a budget of 30 hypotheses.
 ```
 It's key to name the metric and the goal as well as give a budget. Then the agent knows how aggressive it has to be,
-and it knows when to stop. If you say you're looking for a 10% improvement, it'll look for tweaks. It you say you're
+and it knows when to stop. If you say you're looking for a 10% improvement, it'll look for tweaks. If you say you're
 looking for a 90% improvement, it'll be more bold.
 
-This all might look familiar if you follow social media, as Andrej Karpathy recently popularized [autoresearch](https://x.com/karpathy/status/2030371219518931079?s=20)
+This all might look familiar if you follow social media, as Andrej Karpathy recently popularized his [autoresearch](https://x.com/karpathy/status/2030371219518931079?s=20)
  which is very similar.
 
 ### Tough problems
@@ -97,7 +97,7 @@ in the "space of ideas" and not improving the metrics. To solve tough problems, 
 
 Philosopher and cognitive scientist [Margaret Boden](https://en.wikipedia.org/wiki/Margaret_Boden) studied creativity and
 classified it into three levels. The first level is the "milling around" that the agent does naturally. To get the
-agent to be more creative, we need to tell it about level 2.
+agent to be more creative, we need to tell it about [level 2](https://github.com/dsweet99/agent_coding/blob/main/commands/mbc2.md).
 ```
 /mbc2 Generate 5 ideas for solving this problem.
 ```

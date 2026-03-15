@@ -30,8 +30,12 @@ def test_run_session_prompt_retries_and_succeeds(
 ) -> None:
     calls = {"count": 0}
 
-    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
-        assert tee is False
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee_mode):  # noqa: ANN001
+        _ = command
+        _ = prompt
+        _ = cwd
+        _ = log_path
+        assert tee_mode == "off"
         calls["count"] += 1
         if calls["count"] == 1:
             return AgentResult(output="temporary failure", exit_code=1)
@@ -85,7 +89,11 @@ def test_run_session_prompt_reuses_chat_for_same_session(
         created_session_ids.append(session_id)
         return "chat-xyz"
 
-    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee_mode):  # noqa: ANN001
+        _ = prompt
+        _ = cwd
+        _ = log_path
+        _ = tee_mode
         commands.append(command)
         return AgentResult(output="ok", exit_code=0)
 
@@ -166,7 +174,11 @@ def test_run_session_prompt_prepends_style_once_per_new_session(
 ) -> None:
     sent_prompts: list[str] = []
 
-    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee_mode):  # noqa: ANN001
+        _ = command
+        _ = cwd
+        _ = log_path
+        _ = tee_mode
         sent_prompts.append(prompt)
         return AgentResult(output="ok", exit_code=0)
 
@@ -207,3 +219,30 @@ def test_run_session_prompt_prepends_style_once_per_new_session(
         "STYLE\n\nfirst reviewer",
         "second reviewer",
     ]
+
+
+def test_run_session_prompt_passes_tee_json_flag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    flags: list[str] = []
+
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee_mode):  # noqa: ANN001
+        _ = command
+        _ = prompt
+        _ = cwd
+        _ = log_path
+        flags.append(tee_mode)
+        return AgentResult(output="ok", exit_code=0)
+
+    monkeypatch.setattr(agent_module, "_create_chat", lambda _session_id: "chat-123")
+    monkeypatch.setattr(agent_module, "_stream_command", fake_stream_command)
+    client = AgentClient(model="m", retries=0, run_suffix="xyz789", tee=True, tee_json=True)
+
+    client.run_session_prompt(
+        session="coder",
+        prompt="hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "run.log",
+    )
+
+    assert flags == ["json"]

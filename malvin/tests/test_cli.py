@@ -30,10 +30,11 @@ class DummyStore:
 class DummyClient:
     instances: list[DummyClient] = []
 
-    def __init__(self, model: str, force: bool, tee: bool) -> None:
+    def __init__(self, model: str, force: bool, tee: bool, tee_json: bool = False) -> None:
         self.model = model
         self.force = force
         self.tee = tee
+        self.tee_json = tee_json
         self.auth_checked = False
         self.__class__.instances.append(self)
 
@@ -86,6 +87,7 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert DummyClient.instances[-1].model == "opus-4.5"
     assert DummyClient.instances[-1].force is True
     assert DummyClient.instances[-1].tee is True
+    assert DummyClient.instances[-1].tee_json is False
     assert DummyClient.instances[-1].auth_checked is True
     assert DummyOrchestrator.instances[-1].config.max_loops == 5
     assert DummyOrchestrator.instances[-1].config.run_learn is False
@@ -110,6 +112,23 @@ def test_cli_passes_learn_flag_to_workflow_config(
     assert DummyOrchestrator.instances[-1].config.run_learn is True
 
 
+def test_cli_passes_tee_json_to_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    artifacts = _fake_artifacts(tmp_path)
+    monkeypatch.setattr(cli_module.PromptStore, "default", classmethod(lambda cls: DummyStore()))
+    monkeypatch.setattr(cli_module, "create_run_artifacts", lambda _: artifacts)
+    monkeypatch.setattr(cli_module, "AgentClient", DummyClient)
+    monkeypatch.setattr(cli_module, "Orchestrator", DummyOrchestrator)
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    result = runner.invoke(cli_module.main, [str(plan_file), "--tee-json"])
+
+    assert result.exit_code == 0
+    assert DummyClient.instances[-1].tee is True
+    assert DummyClient.instances[-1].tee_json is True
+
+
 def test_cli_returns_click_error_for_missing_prompts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -132,10 +151,11 @@ def test_cli_fails_auth_before_creating_artifacts(
     create_called = {"value": False}
 
     class AuthFailClient:
-        def __init__(self, model: str, force: bool, tee: bool) -> None:
+        def __init__(self, model: str, force: bool, tee: bool, tee_json: bool = False) -> None:
             self.model = model
             self.force = force
             self.tee = tee
+            self.tee_json = tee_json
 
         def ensure_authenticated(self) -> None:
             raise cli_module.AuthError("not authenticated")

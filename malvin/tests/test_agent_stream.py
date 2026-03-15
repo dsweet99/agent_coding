@@ -58,12 +58,43 @@ def test_stream_command_tees_text_to_stdout(
         prompt="Hello",
         cwd=tmp_path,
         log_path=tmp_path / "tee.log",
-        tee=True,
+        tee_mode="text",
     )
 
     assert exit_code == 0
     assert output == "Hi"
     assert print_calls == ["Hi", ""]
+
+
+def test_stream_command_tees_raw_json_when_enabled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    raw_lines = [
+        assistant_partial("Hi"),
+        assistant_final("Hi"),
+        '{"type":"result","subtype":"success","result":"Hi"}\n',
+    ]
+    fake_stdout = iter(raw_lines)
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+    print_calls: list[str] = []
+    monkeypatch.setattr(
+        "builtins.print", lambda text="", end="\n", flush=False: print_calls.append(text)
+    )
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "tee_json.log",
+        tee_mode="json",
+    )
+
+    assert exit_code == 0
+    assert output == "Hi"
+    assert print_calls == raw_lines
 
 
 def test_stream_command_dedupes_cumulative_partial_output(
@@ -137,7 +168,7 @@ def test_stream_command_preserves_tee_text_without_heuristics(
         prompt="Hello",
         cwd=tmp_path,
         log_path=tmp_path / "tee_breaks.log",
-        tee=True,
+        tee_mode="text",
     )
 
     assert exit_code == 0

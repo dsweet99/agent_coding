@@ -38,3 +38,16 @@ def test_render_supports_plan_path_template(tmp_path: Path) -> None:
     rendered = store.render("implement.md", {"plan_path": "_malvin/run123/plan.md"})
 
     assert "_malvin/run123/plan.md" in rendered
+
+
+def test_render_supports_kpop_log_dir_template(tmp_path: Path) -> None:
+    store = PromptStore(root=tmp_path / "prompts")
+    store.root.mkdir(parents=True)
+    (store.root / "kpop.md").write_text(
+        "Write logs to `{{ kpop_log_dir }}/exp_log_{name}.md`.",
+        encoding="utf-8",
+    )
+
+    rendered = store.render("kpop.md", {"kpop_log_dir": "./_malvin/run123/_kpop"})
+
+    assert "./_malvin/run123/_kpop/exp_log_{name}.md" in rendered

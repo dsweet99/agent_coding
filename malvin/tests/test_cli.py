@@ -100,3 +100,35 @@ def test_cli_returns_click_error_for_missing_prompts(
 
     assert result.exit_code != 0
     assert "missing prompts" in result.output
+
+
+def test_cli_fails_auth_before_creating_artifacts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    create_called = {"value": False}
+
+    class AuthFailClient:
+        def __init__(self, model: str, force: bool, tee: bool) -> None:
+            self.model = model
+            self.force = force
+            self.tee = tee
+
+        def ensure_authenticated(self) -> None:
+            raise cli_module.AuthError("not authenticated")
+
+    def fail_if_called(_plan_path: Path) -> RunArtifacts:
+        create_called["value"] = True
+        raise AssertionError("create_run_artifacts should not be called before auth")
+
+    monkeypatch.setattr(cli_module.PromptStore, "default", classmethod(lambda cls: DummyStore()))
+    monkeypatch.setattr(cli_module, "AgentClient", AuthFailClient)
+    monkeypatch.setattr(cli_module, "create_run_artifacts", fail_if_called)
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    result = runner.invoke(cli_module.main, [str(plan_file)])
+
+    assert result.exit_code != 0
+    assert "not authenticated" in result.output
+    assert create_called["value"] is False

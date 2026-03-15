@@ -1,5 +1,3 @@
-"""Test setup for local src/ imports."""
-
 from __future__ import annotations
 
 import sys

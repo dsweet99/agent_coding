@@ -20,6 +20,8 @@
 - Transient agent failures are retried with bounded backoff.
 - Authentication is required before execution.
 - The package must be installable with a `malvin` CLI entry point.
+- /implement and /concerns should run in the same agent (using --resume).
+- /review_? and its /kpop should run in the same agent (using --resume), but each new review should start in a fresh agent.
 - No comments or docstrings in code, except to document `click` CLI for the end user.
 - Quality gates (`ruff`, `kiss`, `pytest`) must pass.
 

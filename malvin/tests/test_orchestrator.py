@@ -36,11 +36,11 @@ class StubAgentClient:
                 self.concerns_reviews.append(review_path.read_text(encoding="utf-8"))
             else:
                 self.concerns_reviews.append("__MISSING__")
-        if session != "reviewer":
+        if not session.startswith("reviewer"):
             return AgentResult(output="ok", exit_code=0)
-        if "review_1" in log_path.name:
+        if log_path.name.startswith("reviewer_review_1_"):
             self._write_maybe(cwd, self.review_1_outputs)
-        if "review_2" in log_path.name:
+        if log_path.name.startswith("reviewer_review_2_"):
             self._write_maybe(cwd, self.review_2_outputs)
         return AgentResult(output="ok", exit_code=0)
 
@@ -131,8 +131,8 @@ def test_orchestrator_ignores_stale_lgtm_if_review_not_updated(tmp_path: Path) -
     orchestrator.run()
 
     log_names = [name for _, name in client.calls]
-    assert any("reviewer_kpop" in name and "attempt_1" in name for name in log_names)
-    assert any("coder_concerns" in name and "attempt_1" in name for name in log_names)
+    assert any("reviewer_kpop_review_2_attempt_1" in name for name in log_names)
+    assert any("coder_concerns_review_2_attempt_1" in name for name in log_names)
 
 
 def test_orchestrator_runs_review_2_retry_cycle_before_lgtm(tmp_path: Path) -> None:
@@ -148,8 +148,8 @@ def test_orchestrator_runs_review_2_retry_cycle_before_lgtm(tmp_path: Path) -> N
 
     log_names = [name for _, name in client.calls]
     assert any("reviewer_review_2_attempt_1" in name for name in log_names)
-    assert any("reviewer_kpop_attempt_1" in name for name in log_names)
-    assert any("coder_concerns_attempt_1" in name for name in log_names)
+    assert any("reviewer_kpop_review_2_attempt_1" in name for name in log_names)
+    assert any("coder_concerns_review_2_attempt_1" in name for name in log_names)
 
 
 def test_orchestrator_keeps_workspace_review_for_concerns(tmp_path: Path) -> None:
@@ -164,3 +164,39 @@ def test_orchestrator_keeps_workspace_review_for_concerns(tmp_path: Path) -> Non
 
     assert client.concerns_reviews
     assert client.concerns_reviews[0] == "Needs fixes"
+
+
+def test_orchestrator_uses_fresh_reviewer_session_per_phase(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["LGTM"],
+        review_2_outputs=["Needs second-pass fixes", "LGTM"],
+        max_loops=3,
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    orchestrator.run()
+
+    sessions_by_log = {log_name: session for session, log_name in client.calls}
+    assert sessions_by_log["reviewer_review_1_attempt_1.log"] == "reviewer_review_1"
+    assert sessions_by_log["reviewer_review_2_attempt_1.log"] == "reviewer_review_2"
+    assert sessions_by_log["reviewer_kpop_review_2_attempt_1.log"] == "reviewer_review_2"
+    assert sessions_by_log["reviewer_review_2_attempt_2.log"] == "reviewer_review_2"
+
+
+def test_orchestrator_separates_phase_logs_for_kpop_and_concerns(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["Needs fixes", "LGTM"],
+        review_2_outputs=["Needs more fixes", "LGTM"],
+        max_loops=3,
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    orchestrator.run()
+
+    log_names = {name for _, name in client.calls}
+    assert "reviewer_kpop_review_1_attempt_1.log" in log_names
+    assert "reviewer_kpop_review_2_attempt_1.log" in log_names
+    assert "coder_concerns_review_1_attempt_1.log" in log_names
+    assert "coder_concerns_review_2_attempt_1.log" in log_names

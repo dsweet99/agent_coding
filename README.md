@@ -2,7 +2,7 @@
 
 Dave's Cursor / Claude prompts.
 
-`rules.md` - This goes into every context. For Cursor this is `.cursorrules`.
+`rules.md` - This goes into every context. For Cursor this is `.cursorrules`.  
 `commands/*.md` - These are called into a context by name. For example, in Cursor, "/kpop".
 
 # How I Code (20260315)

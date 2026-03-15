@@ -11,8 +11,9 @@ from malvin.prompts import PromptError
 
 
 class DummyStore:
-    def __init__(self, should_fail: bool = False) -> None:
+    def __init__(self, should_fail: bool = False, missing_learn: bool = False) -> None:
         self.should_fail = should_fail
+        self.missing_learn = missing_learn
 
     def ensure_defaults(self) -> None:
         return None
@@ -20,6 +21,10 @@ class DummyStore:
     def validate_required(self) -> None:
         if self.should_fail:
             raise PromptError("missing prompts")
+
+    def validate_exists(self, filename: str) -> None:
+        if filename == "learn.md" and self.missing_learn:
+            raise PromptError("missing learn")
 
 
 class DummyClient:
@@ -83,7 +88,26 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert DummyClient.instances[-1].tee is True
     assert DummyClient.instances[-1].auth_checked is True
     assert DummyOrchestrator.instances[-1].config.max_loops == 5
+    assert DummyOrchestrator.instances[-1].config.run_learn is False
     assert DummyOrchestrator.instances[-1].ran is True
+
+
+def test_cli_passes_learn_flag_to_workflow_config(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifacts = _fake_artifacts(tmp_path)
+    monkeypatch.setattr(cli_module.PromptStore, "default", classmethod(lambda cls: DummyStore()))
+    monkeypatch.setattr(cli_module, "create_run_artifacts", lambda _: artifacts)
+    monkeypatch.setattr(cli_module, "AgentClient", DummyClient)
+    monkeypatch.setattr(cli_module, "Orchestrator", DummyOrchestrator)
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    result = runner.invoke(cli_module.main, [str(plan_file), "--learn"])
+
+    assert result.exit_code == 0
+    assert DummyOrchestrator.instances[-1].config.run_learn is True
 
 
 def test_cli_returns_click_error_for_missing_prompts(
@@ -131,4 +155,30 @@ def test_cli_fails_auth_before_creating_artifacts(
 
     assert result.exit_code != 0
     assert "not authenticated" in result.output
+    assert create_called["value"] is False
+
+
+def test_cli_fails_when_learn_prompt_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    create_called = {"value": False}
+    monkeypatch.setattr(
+        cli_module.PromptStore,
+        "default",
+        classmethod(lambda cls: DummyStore(missing_learn=True)),
+    )
+    monkeypatch.setattr(cli_module, "AgentClient", DummyClient)
+    monkeypatch.setattr(
+        cli_module,
+        "create_run_artifacts",
+        lambda _plan_path: create_called.__setitem__("value", True),
+    )
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    result = runner.invoke(cli_module.main, [str(plan_file), "--learn"])
+
+    assert result.exit_code != 0
+    assert "missing learn" in result.output
     assert create_called["value"] is False

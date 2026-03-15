@@ -13,6 +13,7 @@ def test_ensure_defaults_materializes_all_required_prompts(tmp_path: Path) -> No
 
     existing = {path.name for path in store.root.iterdir()}
     assert set(REQUIRED_PROMPTS).issubset(existing)
+    assert "learn.md" in existing
 
 
 def test_validate_required_fails_fast_with_clear_message(tmp_path: Path) -> None:

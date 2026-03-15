@@ -20,4 +20,4 @@ package-dir = { "" = "src" }
 where = ["src"]
 
 [tool.setuptools.package-data]
-malvin = ["default_prompts/*.md"]
+malvin = ["default_prompts/*.md", "*.j2"]

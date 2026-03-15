@@ -62,3 +62,28 @@ def test_stream_command_tees_text_to_stdout(
     assert exit_code == 0
     assert output == "Hi"
     assert print_calls == ["Hi"]
+
+
+def test_parse_stream_line_handles_non_json_and_ignored_events() -> None:
+    text, is_partial = stream_module.parse_stream_line("plain text\n", saw_partial_assistant=False)
+    assert text == "plain text\n"
+    assert is_partial is False
+
+    text, is_partial = stream_module.parse_stream_line(
+        '{"type":"tool_call","name":"x"}\n',
+        saw_partial_assistant=False,
+    )
+    assert text == ""
+    assert is_partial is False
+
+
+def test_parse_stream_line_handles_assistant_and_result_branches() -> None:
+    assistant_final = '{"type":"assistant","message":{"content":[{"type":"text","text":"done"}]}}\n'
+    text, is_partial = stream_module.parse_stream_line(assistant_final, saw_partial_assistant=False)
+    assert text == "done\n"
+    assert is_partial is False
+
+    result_event = '{"type":"result","result":"final"}\n'
+    text, is_partial = stream_module.parse_stream_line(result_event, saw_partial_assistant=True)
+    assert text == ""
+    assert is_partial is False

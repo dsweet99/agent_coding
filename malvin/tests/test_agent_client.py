@@ -159,3 +159,51 @@ def test_stream_command_wraps_oserror_as_agent_error(monkeypatch: pytest.MonkeyP
             cwd=Path("."),
             log_path=Path("run.log"),
         )
+
+
+def test_run_session_prompt_prepends_style_once_per_new_session(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sent_prompts: list[str] = []
+
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
+        sent_prompts.append(prompt)
+        return AgentResult(output="ok", exit_code=0)
+
+    style_path = tmp_path / "style.md"
+    style_path.write_text("STYLE", encoding="utf-8")
+    monkeypatch.setattr(agent_module, "_create_chat", lambda _session_id: "chat-123")
+    monkeypatch.setattr(agent_module, "_stream_command", fake_stream_command)
+    client = AgentClient(model="m", retries=0, run_suffix="abc123", style_prompt_path=style_path)
+
+    client.run_session_prompt(
+        session="coder",
+        prompt="first coder",
+        cwd=tmp_path,
+        log_path=tmp_path / "coder1.log",
+    )
+    client.run_session_prompt(
+        session="coder",
+        prompt="second coder",
+        cwd=tmp_path,
+        log_path=tmp_path / "coder2.log",
+    )
+    client.run_session_prompt(
+        session="reviewer",
+        prompt="first reviewer",
+        cwd=tmp_path,
+        log_path=tmp_path / "reviewer1.log",
+    )
+    client.run_session_prompt(
+        session="reviewer",
+        prompt="second reviewer",
+        cwd=tmp_path,
+        log_path=tmp_path / "reviewer2.log",
+    )
+
+    assert sent_prompts == [
+        "STYLE\n\nfirst coder",
+        "second coder",
+        "STYLE\n\nfirst reviewer",
+        "second reviewer",
+    ]

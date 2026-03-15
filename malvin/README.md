@@ -19,3 +19,10 @@ malvin --tee plan.md
 ```
 
 Code will be written in `./`. Logs will be in `./_malvin`.
+
+
+## Development
+```bash
+pip install -e requirements.txt
+cargo install kiss-ai
+```

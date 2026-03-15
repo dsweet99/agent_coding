@@ -59,6 +59,7 @@ def _build_orchestrator(
     review_1_outputs: list[str] | None = None,
     review_2_outputs: list[str] | None = None,
     max_loops: int = 3,
+    run_learn: bool = False,
 ) -> Orchestrator:
     run_dir = tmp_path / "run"
     run_dir.mkdir()
@@ -72,7 +73,7 @@ def _build_orchestrator(
         client=client,  # type: ignore[arg-type]
         prompts=prompts,
         artifacts=artifacts,
-        config=WorkflowConfig(max_loops=max_loops),
+        config=WorkflowConfig(max_loops=max_loops, run_learn=run_learn),
     )
 
 
@@ -200,3 +201,51 @@ def test_orchestrator_separates_phase_logs_for_kpop_and_concerns(tmp_path: Path)
     assert "reviewer_kpop_review_2_attempt_1.log" in log_names
     assert "coder_concerns_review_1_attempt_1.log" in log_names
     assert "coder_concerns_review_2_attempt_1.log" in log_names
+
+
+def test_orchestrator_runs_learn_last_on_success(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["LGTM"],
+        review_2_outputs=["LGTM"],
+        run_learn=True,
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    orchestrator.run()
+
+    log_names = [name for _, name in client.calls]
+    assert any("coder_learn_final" in name for name in log_names)
+    assert log_names[-1] == "coder_learn_final.log"
+
+
+def test_orchestrator_does_not_run_learn_when_disabled(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["LGTM"],
+        review_2_outputs=["LGTM"],
+        run_learn=False,
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    orchestrator.run()
+
+    log_names = [name for _, name in client.calls]
+    assert not any("coder_learn_" in name for name in log_names)
+
+
+def test_orchestrator_does_not_run_learn_after_failed_review(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["No", "Still no"],
+        review_2_outputs=["LGTM"],
+        max_loops=2,
+        run_learn=True,
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    with pytest.raises(WorkflowError):
+        orchestrator.run()
+
+    log_names = [name for _, name in client.calls]
+    assert not any("coder_learn_" in name for name in log_names)

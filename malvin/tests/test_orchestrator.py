@@ -36,7 +36,7 @@ class StubAgentClient:
                 self.concerns_reviews.append(review_path.read_text(encoding="utf-8"))
             else:
                 self.concerns_reviews.append("__MISSING__")
-        if not session.startswith("reviewer"):
+        if not session.startswith("review_"):
             return AgentResult(output="ok", exit_code=0)
         if log_path.name.startswith("reviewer_review_1_"):
             self._write_maybe(cwd, self.review_1_outputs)
@@ -167,7 +167,7 @@ def test_orchestrator_keeps_workspace_review_for_concerns(tmp_path: Path) -> Non
     assert client.concerns_reviews[0] == "Needs fixes"
 
 
-def test_orchestrator_uses_fresh_reviewer_session_per_phase(tmp_path: Path) -> None:
+def test_orchestrator_uses_fresh_reviewer_session_per_round(tmp_path: Path) -> None:
     orchestrator = _build_orchestrator(
         tmp_path,
         review_1_outputs=["LGTM"],
@@ -179,10 +179,10 @@ def test_orchestrator_uses_fresh_reviewer_session_per_phase(tmp_path: Path) -> N
     orchestrator.run()
 
     sessions_by_log = {log_name: session for session, log_name in client.calls}
-    assert sessions_by_log["reviewer_review_1_attempt_1.log"] == "reviewer_review_1"
-    assert sessions_by_log["reviewer_review_2_attempt_1.log"] == "reviewer_review_2"
-    assert sessions_by_log["reviewer_kpop_review_2_attempt_1.log"] == "reviewer_review_2"
-    assert sessions_by_log["reviewer_review_2_attempt_2.log"] == "reviewer_review_2"
+    assert sessions_by_log["reviewer_review_1_attempt_1.log"] == "review_1_1"
+    assert sessions_by_log["reviewer_review_2_attempt_1.log"] == "review_2_1"
+    assert sessions_by_log["reviewer_kpop_review_2_attempt_1.log"] == "review_2_1"
+    assert sessions_by_log["reviewer_review_2_attempt_2.log"] == "review_2_2"
 
 
 def test_orchestrator_separates_phase_logs_for_kpop_and_concerns(tmp_path: Path) -> None:

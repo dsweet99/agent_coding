@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 
 import malvin.agent_client as agent_module
@@ -246,3 +247,39 @@ def test_run_session_prompt_passes_tee_json_flag(
     )
 
     assert flags == ["json"]
+
+
+def test_create_chat_accepts_first_line_when_stdout_has_extra_lines(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_run(*_args, **_kwargs):  # noqa: ANN001
+        return subprocess.CompletedProcess(
+            args=["cursor-agent", "create-chat"],
+            returncode=0,
+            stdout="chat-123\nextra text\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(agent_module.subprocess, "run", fake_run)
+
+    chat_id = agent_module._create_chat("coder_test")
+
+    assert chat_id == "chat-123"
+
+
+def test_create_chat_timeout_uses_partial_stdout_chat_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_run(*_args, **_kwargs):  # noqa: ANN001
+        raise subprocess.TimeoutExpired(
+            cmd=["cursor-agent", "create-chat"],
+            timeout=30.0,
+            output="chat-timeout-123\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(agent_module.subprocess, "run", fake_run)
+
+    chat_id = agent_module._create_chat("coder_test")
+
+    assert chat_id == "chat-timeout-123"

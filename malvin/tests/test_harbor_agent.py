@@ -51,7 +51,7 @@ def test_build_malvin_run_command_contains_expected_invocation() -> None:
         log_path="/logs/agent/malvin.txt",
     )
 
-    assert "malvin /tmp/malvin_plan.md --model opus-4.5" in command
+    assert "malvin /tmp/malvin_plan.md --model opus-4.5 --tee" in command
     assert "tee /logs/agent/malvin.txt" in command
 
 

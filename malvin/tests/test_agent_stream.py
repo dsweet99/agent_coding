@@ -150,6 +150,35 @@ def test_stream_command_dedupes_repeated_partial_retransmits(
     assert output == "ha"
 
 
+def test_stream_command_dedupes_delta_stream_followed_by_full_replay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter(
+        [
+            assistant_partial("Now"),
+            assistant_partial(" I"),
+            assistant_partial(" understand"),
+            assistant_partial("."),
+            assistant_partial("Now I understand.", timestamp=99),
+            assistant_final("Now I understand."),
+        ]
+    )
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "delta_then_full.log",
+    )
+
+    assert exit_code == 0
+    assert output == "Now I understand."
+
+
 def test_stream_command_preserves_tee_text_without_heuristics(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

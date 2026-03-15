@@ -14,6 +14,8 @@ def _init_repo(repo_root: Path) -> None:
     (repo_root / "src" / "malvin").mkdir(parents=True)
     (repo_root / "src" / "malvin" / "cli.py").write_text("print('hi')\n", encoding="utf-8")
     (repo_root / "README.md").write_text("# test\n", encoding="utf-8")
+    (repo_root / "requirements.txt").write_text("click>=8.1\n", encoding="utf-8")
+    (repo_root / ".kissconfig").write_text("[tool.kiss]\n", encoding="utf-8")
     (repo_root / "pyproject.toml").write_text("[project]\nname='x'\n", encoding="utf-8")
 
 
@@ -29,6 +31,8 @@ def test_collect_bundle_inputs_includes_required_files(tmp_path: Path) -> None:
 
     assert "README.md" in relative_paths
     assert "pyproject.toml" in relative_paths
+    assert "requirements.txt" in relative_paths
+    assert ".kissconfig" in relative_paths
     assert "src/malvin/cli.py" in relative_paths
 
 
@@ -177,7 +181,7 @@ def test_bundle_paths_helpers(tmp_path: Path) -> None:
 
     required = harbor_bundle_paths.collect_required_root_files(tmp_path)
     required_rels = {path.relative_to(tmp_path).as_posix() for path in required}
-    assert required_rels == {"README.md", "pyproject.toml"}
+    assert required_rels == {"README.md", "pyproject.toml", "requirements.txt", ".kissconfig"}
 
     included = harbor_bundle_paths.iter_included_files(tmp_path, tmp_path / "src")
     included_rels = {path.relative_to(tmp_path).as_posix() for path in included}

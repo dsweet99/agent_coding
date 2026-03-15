@@ -1,8 +1,11 @@
 # malvin
 
-`malvin` is a CLI that orchestrates implementation and review loops with `cursor-agent`.
+`malvin` implement's [Dave's coding workflow](https://github.com/dsweet99/agent_coding/tree/main).
 
 ## Installation
+
+Install `cursor-agent`: [https://cursor.com/blog/cli](https://cursor.com/blog/cli)
+It's also just called `agent`, but either name should work. Be sure to get yourself authenticated.
 
 ```bash
 pip install -e .

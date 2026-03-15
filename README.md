@@ -57,12 +57,13 @@ which fixes the code based on `review.md`.
 I repeat these steps -- `/review_1`, `/kpop`, `/concerns` -- until the reviewer says "LGTM".
 Then I repeat them *again* using `/review_2`, which is a more fine-grained review.
 
-### Serious Coding
+### Serious coding
 The **Code** and **Review** sections can be combined and automated by a simple Python script calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
 
 ```
   nohup ./write_the_code.py &> log
 ```
+that does the implementation and review cycles.
 
 With a little bookeeping, you can get multiple coding agents going at the same time.
 
@@ -137,7 +138,7 @@ This instructs the agent to identify and store a few new things it learned durin
  in future sessions.
 
 ## Global information / Stopping "Wack-A-Mole"
-Agents get a very localized view of a problem since their context is built from snippets of code that is thinks it needs to
+Agents get a very localized view of a problem since their context is built from snippets of code that it thinks it needs to
  solve a particular problem. What's gets lost is the "big picture":
 
 - The overall plan for the codebase
@@ -152,6 +153,6 @@ To fix these problems, I do two things:
   "This module contains statistical sampling functions." or "These functions should stay O(N)." At planning and review time the agent will
   be instructed to look at `grounding.md` and will be less likely to put non-statistical sampling functions in that module. KPop will be
   more likely to measure the scaling of a function it thinks might violate the O(N) constraint.
-- `kiss check`(https://github.com/dsweet99/kiss): `kiss` is a linter I created to help solve this problem. It looks at the full codebase, builds a
+- `kiss check`(https://github.com/dsweet99/kiss): `kiss` is a linter that looks at the full codebase, builds a
   graph, and reports to the agent problems of too much complexity, duplicate code, orphaned code, and low test coverage.
 

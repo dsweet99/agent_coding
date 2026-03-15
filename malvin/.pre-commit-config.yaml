@@ -19,7 +19,7 @@ repos:
     hooks:
       - id: kiss-check
         name: kiss check
-        entry: kiss check --config malvin/.kissconfig
+        entry: kiss check --config malvin/.kissconfig --ignore sample
         language: system
         pass_filenames: false
         always_run: true

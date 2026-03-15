@@ -49,7 +49,9 @@ def test_stream_command_tees_text_to_stdout(
     fake_process.wait.return_value = 0
     monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
     print_calls: list[str] = []
-    monkeypatch.setattr("builtins.print", lambda text, end, flush: print_calls.append(text))
+    monkeypatch.setattr(
+        "builtins.print", lambda text="", end="\n", flush=False: print_calls.append(text)
+    )
 
     output, exit_code = stream_module.stream_command(
         command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
@@ -61,7 +63,86 @@ def test_stream_command_tees_text_to_stdout(
 
     assert exit_code == 0
     assert output == "Hi"
-    assert print_calls == ["Hi"]
+    assert print_calls == ["Hi", ""]
+
+
+def test_stream_command_dedupes_cumulative_partial_output(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter(
+        [
+            assistant_partial("Let me check"),
+            assistant_partial("Let me check the project"),
+            assistant_partial("Let me check the project"),
+            assistant_final("Let me check the project"),
+        ]
+    )
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "dedupe.log",
+    )
+
+    assert exit_code == 0
+    assert output == "Let me check the project"
+
+
+def test_stream_command_dedupes_repeated_partial_retransmits(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter(
+        [
+            assistant_partial("ha"),
+            assistant_partial("ha", timestamp=2),
+            assistant_final("haha"),
+        ]
+    )
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "delta_repeat.log",
+    )
+
+    assert exit_code == 0
+    assert output == "ha"
+
+
+def test_stream_command_preserves_tee_text_without_heuristics(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter([assistant_partial("One.Two"), assistant_final("One.Two")])
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+    print_calls: list[str] = []
+    monkeypatch.setattr(
+        "builtins.print", lambda text="", end="\n", flush=False: print_calls.append(text)
+    )
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "tee_breaks.log",
+        tee=True,
+    )
+
+    assert exit_code == 0
+    assert output == "One.Two"
+    assert print_calls == ["One.Two", ""]
 
 
 def test_parse_stream_line_handles_non_json_and_ignored_events() -> None:

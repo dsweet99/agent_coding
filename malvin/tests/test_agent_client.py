@@ -30,7 +30,8 @@ def test_run_session_prompt_retries_and_succeeds(
 ) -> None:
     calls = {"count": 0}
 
-    def fake_stream_command(*, command, prompt, cwd, log_path):  # noqa: ANN001
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
+        assert tee is False
         calls["count"] += 1
         if calls["count"] == 1:
             return AgentResult(output="temporary failure", exit_code=1)
@@ -84,7 +85,7 @@ def test_run_session_prompt_reuses_chat_for_same_session(
         created_session_ids.append(session_id)
         return "chat-xyz"
 
-    def fake_stream_command(*, command, prompt, cwd, log_path):  # noqa: ANN001
+    def fake_stream_command(*, command, prompt, cwd, log_path, tee):  # noqa: ANN001
         commands.append(command)
         return AgentResult(output="ok", exit_code=0)
 
@@ -142,3 +143,19 @@ def test_run_session_prompt_uses_distinct_session_ids_per_role(
     )
 
     assert created_session_ids == ["coder_run42", "reviewer_run42"]
+
+
+def test_stream_command_wraps_oserror_as_agent_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        agent_module,
+        "_stream_command_raw",
+        lambda **_kwargs: (_ for _ in ()).throw(OSError("missing executable")),
+    )
+
+    with pytest.raises(AgentError):
+        agent_module._stream_command(
+            command=["cursor-agent"],
+            prompt="hello",
+            cwd=Path("."),
+            log_path=Path("run.log"),
+        )

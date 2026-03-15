@@ -38,3 +38,27 @@ def test_stream_command_converts_stream_json_to_human_text(
     log_text = log_path.read_text(encoding="utf-8")
     assert "Hello there" in log_text
     assert '{"type":' not in log_text
+
+
+def test_stream_command_tees_text_to_stdout(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fake_stdin = Mock()
+    fake_stdout = iter([assistant_partial("Hi"), assistant_final("Hi")])
+    fake_process = Mock(stdin=fake_stdin, stdout=fake_stdout)
+    fake_process.wait.return_value = 0
+    monkeypatch.setattr(stream_module.subprocess, "Popen", lambda *args, **kwargs: fake_process)
+    print_calls: list[str] = []
+    monkeypatch.setattr("builtins.print", lambda text, end, flush: print_calls.append(text))
+
+    output, exit_code = stream_module.stream_command(
+        command=["cursor-agent", "--trust", "--print", "--output-format", "stream-json"],
+        prompt="Hello",
+        cwd=tmp_path,
+        log_path=tmp_path / "tee.log",
+        tee=True,
+    )
+
+    assert exit_code == 0
+    assert output == "Hi"
+    assert print_calls == ["Hi"]

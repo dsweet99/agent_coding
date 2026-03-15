@@ -19,6 +19,7 @@ class StubAgentClient:
         self.review_1_outputs = list(review_1_outputs or [])
         self.review_2_outputs = list(review_2_outputs or [])
         self.calls: list[tuple[str, str]] = []
+        self.concerns_reviews: list[str] = []
 
     def run_session_prompt(
         self,
@@ -29,6 +30,12 @@ class StubAgentClient:
         log_path: Path,
     ) -> AgentResult:
         self.calls.append((session, log_path.name))
+        if session == "coder" and "concerns" in log_path.name:
+            review_path = cwd / "review.md"
+            if review_path.exists():
+                self.concerns_reviews.append(review_path.read_text(encoding="utf-8"))
+            else:
+                self.concerns_reviews.append("__MISSING__")
         if session != "reviewer":
             return AgentResult(output="ok", exit_code=0)
         if "review_1" in log_path.name:
@@ -143,3 +150,17 @@ def test_orchestrator_runs_review_2_retry_cycle_before_lgtm(tmp_path: Path) -> N
     assert any("reviewer_review_2_attempt_1" in name for name in log_names)
     assert any("reviewer_kpop_attempt_1" in name for name in log_names)
     assert any("coder_concerns_attempt_1" in name for name in log_names)
+
+
+def test_orchestrator_keeps_workspace_review_for_concerns(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["Needs fixes", "LGTM"],
+        review_2_outputs=["LGTM"],
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+
+    orchestrator.run()
+
+    assert client.concerns_reviews
+    assert client.concerns_reviews[0] == "Needs fixes"

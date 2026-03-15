@@ -25,9 +25,10 @@ class DummyStore:
 class DummyClient:
     instances: list[DummyClient] = []
 
-    def __init__(self, model: str, force: bool) -> None:
+    def __init__(self, model: str, force: bool, tee: bool) -> None:
         self.model = model
         self.force = force
+        self.tee = tee
         self.auth_checked = False
         self.__class__.instances.append(self)
 
@@ -71,7 +72,7 @@ def test_cli_uses_defaults_and_prints_run_directory(
     plan_file = tmp_path / "input_plan.md"
     plan_file.write_text("plan", encoding="utf-8")
 
-    result = runner.invoke(cli_module.main, [str(plan_file)])
+    result = runner.invoke(cli_module.main, [str(plan_file), "--tee"])
 
     assert result.exit_code == 0
     output_lines = [line for line in result.output.splitlines() if line]
@@ -79,6 +80,7 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert str(artifacts.run_dir) in output_lines[0]
     assert DummyClient.instances[-1].model == "opus-4.5"
     assert DummyClient.instances[-1].force is True
+    assert DummyClient.instances[-1].tee is True
     assert DummyClient.instances[-1].auth_checked is True
     assert DummyOrchestrator.instances[-1].config.max_loops == 5
     assert DummyOrchestrator.instances[-1].ran is True

@@ -108,7 +108,9 @@ in the "space of ideas" and not improving the metrics. To solve tough problems, 
 
 Philosopher and cognitive scientist [Margaret Boden](https://en.wikipedia.org/wiki/Margaret_Boden) studied creativity and
 classified it into three levels. The first level is the "milling around" that the agent does naturally. To get the
-agent to be more creative, we need to tell it about [level 2](https://github.com/dsweet99/agent_coding/blob/main/commands/mbc2.md).
+agent to be more creative, we need to activate [level 2](https://github.com/dsweet99/agent_coding/blob/main/commands/mbc2.md)
+creativity.
+
 ```
 /mbc2 Generate 5 ideas for solving this problem.
 ```

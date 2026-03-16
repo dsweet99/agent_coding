@@ -6,7 +6,6 @@ import pytest
 from malvin.agent_client import AgentResult
 from malvin.artifacts import RunArtifacts
 from malvin.orchestrator import Orchestrator, WorkflowConfig, WorkflowError
-
 from malvin.prompts import PromptStore
 
 
@@ -20,6 +19,7 @@ class StubAgentClient:
         self.review_2_outputs = list(review_2_outputs or [])
         self.calls: list[tuple[str, str]] = []
         self.concerns_reviews: list[str] = []
+        self.review_before_run: dict[str, str] = {}
 
     def run_session_prompt(
         self,
@@ -38,6 +38,11 @@ class StubAgentClient:
                 self.concerns_reviews.append("__MISSING__")
         if not session.startswith("review_"):
             return AgentResult(output="ok", exit_code=0)
+        review_path = cwd / "review.md"
+        if review_path.exists():
+            self.review_before_run[log_path.name] = review_path.read_text(encoding="utf-8")
+        else:
+            self.review_before_run[log_path.name] = "__MISSING__"
         if log_path.name.startswith("reviewer_review_1_"):
             self._write_maybe(cwd, self.review_1_outputs)
         if log_path.name.startswith("reviewer_review_2_"):
@@ -249,3 +254,23 @@ def test_orchestrator_does_not_run_learn_after_failed_review(tmp_path: Path) -> 
 
     log_names = [name for _, name in client.calls]
     assert not any("coder_learn_" in name for name in log_names)
+
+
+def test_orchestrator_clears_review_before_starting_reviewer(tmp_path: Path) -> None:
+    orchestrator = _build_orchestrator(
+        tmp_path,
+        review_1_outputs=["LGTM"],
+        review_2_outputs=["LGTM"],
+    )
+    client = orchestrator.client  # type: ignore[assignment]
+    (tmp_path / "review.md").write_text("stale review", encoding="utf-8")
+    context = {"plan_path": str(orchestrator.artifacts.plan_path), "kpop_log_dir": "./_kpop"}
+
+    orchestrator._run_reviewer_prompt(
+        "review_1.md",
+        context,
+        session="review_1_1",
+        suffix="attempt_1",
+    )
+
+    assert client.review_before_run["reviewer_review_1_attempt_1.log"] == "__MISSING__"

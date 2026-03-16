@@ -84,6 +84,7 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert output_lines[0] == "copied"
     assert output_lines[1].startswith("Logs: ")
     assert str(artifacts.run_dir) in output_lines[1]
+    assert output_lines[-1] == "DONE"
     assert DummyClient.instances[-1].model == "opus-4.5"
     assert DummyClient.instances[-1].force is True
     assert DummyClient.instances[-1].tee is True
@@ -129,6 +130,7 @@ def test_cli_passes_tee_json_to_client(tmp_path: Path, monkeypatch: pytest.Monke
     assert DummyClient.instances[-1].tee_json is True
     output_lines = [line for line in result.output.splitlines() if line]
     assert output_lines[0].startswith("Logs: ")
+    assert output_lines[-1] == "DONE"
 
 
 def test_cli_returns_click_error_for_missing_prompts(

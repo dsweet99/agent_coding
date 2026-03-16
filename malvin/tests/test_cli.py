@@ -229,3 +229,35 @@ def test_cli_fails_when_learn_prompt_missing(
     assert result.exit_code != 0
     assert "missing learn" in result.output
     assert create_called["value"] is False
+
+
+def test_cli_returns_click_error_for_agent_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    def raise_agent_error(_options: cli_module.WorkflowRunOptions) -> None:
+        raise cli_module.AgentError("agent failed")
+
+    monkeypatch.setattr(cli_module, "_run_workflow", raise_agent_error)
+    result = runner.invoke(cli_module.main, [str(plan_file)])
+    assert result.exit_code != 0
+    assert "agent failed" in result.output
+
+
+def test_cli_returns_click_error_for_workflow_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner = CliRunner()
+    plan_file = tmp_path / "input_plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    def raise_workflow_error(_options: cli_module.WorkflowRunOptions) -> None:
+        raise cli_module.WorkflowError("workflow failed")
+
+    monkeypatch.setattr(cli_module, "_run_workflow", raise_workflow_error)
+    result = runner.invoke(cli_module.main, [str(plan_file)])
+    assert result.exit_code != 0
+    assert "workflow failed" in result.output

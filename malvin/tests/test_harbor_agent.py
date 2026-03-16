@@ -52,6 +52,7 @@ def test_build_malvin_run_command_contains_expected_invocation() -> None:
     )
 
     assert 'export PATH="/opt/malvin-venv/bin:$HOME/.local/bin:$PATH";' in command
+    assert "kiss clamp;" in command
     assert "malvin /tmp/malvin_plan.md --model opus-4.5 --tee" in command
     assert "tee /logs/agent/malvin.txt" in command
 

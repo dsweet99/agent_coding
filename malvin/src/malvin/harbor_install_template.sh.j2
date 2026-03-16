@@ -62,6 +62,13 @@ install_uv_if_missing() {
   curl -LsSf https://astral.sh/uv/install.sh | sh
 }
 
+install_rust_if_missing() {
+  if have cargo; then
+    return 0
+  fi
+  curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal
+}
+
 install_cursor_agent_if_missing() {
   if have cursor-agent; then
     return 0
@@ -76,6 +83,7 @@ tar -xzf /installed-agent/malvin.tar.gz -C /opt/malvin
 install_curl_if_missing
 install_uv_if_missing
 install_build_toolchain_if_missing
+install_rust_if_missing
 install_cursor_agent_if_missing
 
 # Prefer Python 3.13 for Malvin runtime across diverse task base images.
@@ -84,6 +92,11 @@ uv venv --python 3.13 --seed /opt/malvin-venv
 /opt/malvin-venv/bin/python -m pip install --upgrade pip setuptools wheel
 /opt/malvin-venv/bin/python -m pip install -r /opt/malvin/requirements-harbor.txt
 /opt/malvin-venv/bin/python -m pip install -e /opt/malvin
+
+if ! have kiss; then
+  cargo install --locked kiss-ai
+fi
+ln -sf "$HOME/.cargo/bin/kiss" /usr/local/bin/kiss || true
 
 cp /installed-agent/malvin.tar.gz.metadata.json /logs/agent/bundle-metadata.json
 

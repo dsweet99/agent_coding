@@ -261,3 +261,77 @@ def test_cli_returns_click_error_for_workflow_error(
     result = runner.invoke(cli_module.main, [str(plan_file)])
     assert result.exit_code != 0
     assert "workflow failed" in result.output
+
+
+def test_main_callback_success_prints_done(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    plan_file = tmp_path / "plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+    seen = {"called": False}
+    echoed: list[str] = []
+
+    def fake_run(options: cli_module.WorkflowRunOptions) -> None:
+        seen["called"] = True
+        assert options.plan_path == plan_file
+        assert options.model == "composer-1.5"
+        assert options.force is True
+        assert options.max_loops == 5
+        assert options.tee is False
+        assert options.tee_json is False
+        assert options.learn is False
+
+    monkeypatch.setattr(cli_module, "_run_workflow", fake_run)
+    monkeypatch.setattr(
+        cli_module.click, "echo", lambda message="", **_kwargs: echoed.append(message)
+    )
+
+    callback = cli_module.main.callback
+    assert callback is not None
+    callback(
+        plan_path=plan_file,
+        model="composer-1.5",
+        force=True,
+        max_loops=5,
+        tee=False,
+        tee_json=False,
+        learn=False,
+    )
+
+    assert seen["called"] is True
+    assert echoed[-1] == "DONE"
+
+
+@pytest.mark.parametrize(
+    ("exception", "expected_message"),
+    [
+        (PromptError("prompt boom"), "prompt boom"),
+        (cli_module.AuthError("auth boom"), "auth boom"),
+        (cli_module.AgentError("agent boom"), "agent boom"),
+        (cli_module.WorkflowError("workflow boom"), "workflow boom"),
+    ],
+)
+def test_main_callback_wraps_known_errors(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    exception: Exception,
+    expected_message: str,
+) -> None:
+    plan_file = tmp_path / "plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    def raise_exc(_options: cli_module.WorkflowRunOptions) -> None:
+        raise exception
+
+    monkeypatch.setattr(cli_module, "_run_workflow", raise_exc)
+
+    callback = cli_module.main.callback
+    assert callback is not None
+    with pytest.raises(cli_module.click.ClickException, match=expected_message):
+        callback(
+            plan_path=plan_file,
+            model="composer-1.5",
+            force=True,
+            max_loops=5,
+            tee=False,
+            tee_json=False,
+            learn=False,
+        )

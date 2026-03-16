@@ -19,5 +19,7 @@ Run checks & tests frequently to avoid a big cleanup at the end.
 ALL checks and tests should pass on ALL	files (not just the ones you modified). Don't tell me
  about "pre-existing" problems. We're here to work. To fix. Be tenacious. There's no excuse
  for not getting ALL checks and tests to pass on ALL files.
-Don't touch .kissconfig ever. Don't add `# noqa`. Just don't cheat or weasel out at all. Your task
- is to get ALL checks and tests to pass on ALL files.
+Don't touch .kissconfig ever.
+Don't add `# noqa` except to ensure correct functioning of the code.
+Don't cheat the tests in any way.
+Your task is to get ALL checks and tests to pass on ALL files.

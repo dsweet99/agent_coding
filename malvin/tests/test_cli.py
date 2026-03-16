@@ -65,6 +65,29 @@ def _fake_artifacts(tmp_path: Path) -> RunArtifacts:
     return RunArtifacts(run_dir=run_dir, plan_path=plan, work_dir=tmp_path)
 
 
+def test_workflow_run_options_captures_cli_values(tmp_path: Path) -> None:
+    plan_file = tmp_path / "plan.md"
+    plan_file.write_text("plan", encoding="utf-8")
+
+    options = cli_module.WorkflowRunOptions(
+        plan_path=plan_file,
+        model="gpt-5",
+        force=False,
+        max_loops=7,
+        tee=True,
+        tee_json=False,
+        learn=True,
+    )
+
+    assert options.plan_path == plan_file
+    assert options.model == "gpt-5"
+    assert options.force is False
+    assert options.max_loops == 7
+    assert options.tee is True
+    assert options.tee_json is False
+    assert options.learn is True
+
+
 def test_cli_uses_defaults_and_prints_run_directory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

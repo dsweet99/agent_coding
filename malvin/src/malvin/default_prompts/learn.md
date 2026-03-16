@@ -8,7 +8,7 @@ End-of-session:
 
 2) Summarize it as a short bullet list.
 
-3) Edit `~/.malvin/style/main.md` to incorporate the new info.
-- Keep `~/.malvin/style/main.md` < 100 lines; focus on highest-priority rules and index entries.
-- Don't lose information: Consolidate into broader rules and/or move detail into `~/.malvin/style/<topic>.md`. Add one or more triggers to ~/.malvin/style/main.md telling when to look in the new file.
+3) Edit `.style/main.md` to incorporate the new info.
+- Keep `.style/main.md` < 100 lines; focus on highest-priority rules and index entries.
+- Don't lose information: Consolidate into broader rules and/or move detail into `.style/<topic>.md`. Add one or more triggers to .style/main.md telling when to look in the new file.
 - Keep commands and hard constraints exact.

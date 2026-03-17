@@ -156,5 +156,5 @@ To fix these problems, I do two things:
   "This module contains statistical sampling functions." or "These functions should stay O(N)." At planning and review time the agent will
   be instructed to look at `grounding.md` and will be less likely to put non-statistical sampling functions in that module. KPop will be
   more likely to measure the scaling of a function it thinks might violate the O(N) constraint.
-- `kiss check`(https://github.com/dsweet99/kiss): `kiss` is a linter that looks at the full codebase, builds a
+- [kiss check](https://github.com/dsweet99/kiss): `kiss` is a linter that looks at the full codebase, builds a
   graph, and reports to the agent problems of too much complexity, duplicate code, orphaned code, and low test coverage.

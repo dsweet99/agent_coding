@@ -37,45 +37,52 @@ class WorkflowRunOptions:
     learn: bool
 
 
-def _workflow_flags(function):  # noqa: ANN001
-    function = click.option(
-        "--tee-json/--no-tee-json",
-        default=False,
-        show_default=True,
-        help="When teeing output, print raw stream-json lines.",
-    )(function)
-    function = click.option(
-        "--learn/--no-learn",
-        default=False,
-        show_default=True,
-        help="Run learn.md with coder agent at end of workflow.",
-    )(function)
-    function = click.option(
-        "--tee/--no-tee",
-        default=False,
-        show_default=True,
-        help="Stream agent output to stdout while writing logs.",
-    )(function)
+def _cli_decorators(function):  # noqa: ANN001
+    """Apply all CLI decorators to the main function."""
+    decorators = [
+        click.command(),
+        click.argument("plan_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)),
+        click.option(
+            "--model", default="opus-4.5", show_default=True, help="Model for cursor-agent."
+        ),
+        click.option(
+            "--force/--no-force",
+            default=True,
+            show_default=True,
+            help="Pass --force to cursor-agent.",
+        ),
+        click.option(
+            "--max-loops",
+            default=5,
+            show_default=True,
+            type=click.IntRange(min=1),
+            help="Maximum attempts per review phase.",
+        ),
+        click.option(
+            "--tee/--no-tee",
+            default=False,
+            show_default=True,
+            help="Stream agent output to stdout while writing logs.",
+        ),
+        click.option(
+            "--learn/--no-learn",
+            default=False,
+            show_default=True,
+            help="Run learn.md with coder agent at end of workflow.",
+        ),
+        click.option(
+            "--tee-json/--no-tee-json",
+            default=False,
+            show_default=True,
+            help="When teeing output, print raw stream-json lines.",
+        ),
+    ]
+    for decorator in reversed(decorators):
+        function = decorator(function)
     return function
 
 
-@click.command()
-@click.argument("plan_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
-@click.option("--model", default="opus-4.5", show_default=True, help="Model for cursor-agent.")
-@click.option(
-    "--force/--no-force",
-    default=True,
-    show_default=True,
-    help="Pass --force to cursor-agent.",
-)
-@click.option(
-    "--max-loops",
-    default=5,
-    show_default=True,
-    type=click.IntRange(min=1),
-    help="Maximum attempts per review phase.",
-)
-@_workflow_flags
+@_cli_decorators
 def main(
     plan_path: Path,
     model: str,

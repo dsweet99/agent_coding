@@ -26,14 +26,19 @@ class DummyStore:
             raise PromptError("missing learn")
 
 
-class DummyClient:
-    instances: list[DummyClient] = []
-
+class BaseClient:
     def __init__(self, model: str, force: bool, tee: bool, tee_json: bool = False) -> None:
         self.model = model
         self.force = force
         self.tee = tee
         self.tee_json = tee_json
+
+
+class DummyClient(BaseClient):
+    instances: list[DummyClient] = []
+
+    def __init__(self, model: str, force: bool, tee: bool, tee_json: bool = False) -> None:
+        super().__init__(model, force, tee, tee_json)
         self.auth_checked = False
         self.__class__.instances.append(self)
 
@@ -177,13 +182,7 @@ def test_cli_fails_auth_before_creating_artifacts(
 ) -> None:
     create_called = {"value": False}
 
-    class AuthFailClient:
-        def __init__(self, model: str, force: bool, tee: bool, tee_json: bool = False) -> None:
-            self.model = model
-            self.force = force
-            self.tee = tee
-            self.tee_json = tee_json
-
+    class AuthFailClient(BaseClient):
         def ensure_authenticated(self) -> None:
             raise cli_module.AuthError("not authenticated")
 

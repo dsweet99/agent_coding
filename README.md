@@ -55,7 +55,7 @@ I repeat these steps -- `/review_1`, `/kpop`, `/concerns` -- until the reviewer 
 Then I repeat them *again* using `/review_2`, which is a more fine-grained review.
 
 ### Serious coding
-The **Code** and **Review** sections can be combined and automated by a simple [Python script](https://github.com/dsweet99/agent_coding/tree/main/malvin) calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
+The **Code** and **Review** sections can be combined and automated by a simple Python script (I decided to just write it, it's called [malvin](https://github.com/dsweet99/agent_coding/tree/main/malvin).) calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
 
 ```
 malvin plan.md

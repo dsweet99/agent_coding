@@ -11,10 +11,6 @@ mkdir -p /path/to/your/repo/.cursor/commands
 cp commands/*.md /path/to/your/repo/.cursor/commands
 ```
 
-## Claude setup
-Sorry. I use Cursor still. You'll see why below.
-But you could probably adapt this to Claude Code.
-
 # How I Code (20260315)
 
 ## Plan
@@ -22,8 +18,8 @@ I write a brief descripton of what I want, then I type
 ```
 /rr
 ```
-The I look over `plan.md`, especially the questions. If there are any unanswered questions, I put my
- answers in plan.md. I also add my notes on anything else that catches my eye. All of my edits begin
+Then I look over `plan.md`, especially the questions. If there are any unanswered questions, I put my
+ answers in `plan.md`. I also add my notes on anything else that catches my eye. All of my edits begin
  with "[dsweet]".
 
 If it's a big plan, I'll run
@@ -62,9 +58,9 @@ Then I repeat them *again* using `/review_2`, which is a more fine-grained revie
 The **Code** and **Review** sections can be combined and automated by a simple [Python script](https://github.com/dsweet99/agent_coding/tree/main/malvin) calling out to `cursor-agent`. For serious work, I do the planning interactively in Cursor and then call something like
 
 ```
-  nohup ./write_the_code.py &> log
+malvin plan.md
 ```
-that does the implementation and review cycles.
+that carries out the implementation and review cycles.
 
 With a little bookeeping, you can get multiple coding agents going at the same time.
 

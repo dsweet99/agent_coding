@@ -1,9 +1,8 @@
 
 # Dave's Agent Coding Workflow
 
-`rules.md` - This goes into every context. For Cursor this is `.cursorrules`.
-
-`commands/*.md` - These are called into a context by name. For example, "/kpop".
+- `rules.md` - This goes into every context. For Cursor this is `.cursorrules`.
+- `commands/*.md` - These are called into a context by name. For example, "/kpop".
 
 ## Cursor setup
 ```

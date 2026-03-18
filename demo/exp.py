@@ -41,7 +41,7 @@ def run_agent_for_task(target_dir: Path, task_src: Path, task_index: int, mode: 
             "Read grounding.md and task.md in this directory. "
             "Complete exactly the task in task.md while staying consistent with grounding.md."
         )
-        cmd = f"cursor-agent --print --trust --force {shlex.quote(prompt)}"
+        cmd = f"cursor-agent --print --trust --force --model=opus-4.5 {shlex.quote(prompt)}"
     elif mode == "malvin":
         cmd = "malvin task.md"
     else:

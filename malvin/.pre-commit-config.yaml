@@ -4,8 +4,10 @@ repos:
     hooks:
       - id: ruff
         args: [--config, malvin/admin/ruff.toml, --fix, --fixable, I001]
+        exclude: ^demo/
       - id: ruff-format
         args: [--config, malvin/admin/ruff.toml]
+        exclude: ^demo/
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

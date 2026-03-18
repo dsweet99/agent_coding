@@ -1,5 +1,7 @@
 target-version = "py310"
 line-length = 100
+force-exclude = true
+exclude = ["demo/"]
 
 [lint]
 select = ["E", "F", "I", "UP", "B"]

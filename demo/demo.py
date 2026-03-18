@@ -2,7 +2,7 @@
 """Run the multi-step Cursor Agent experiment.
 
 Usage:
-    python experiment/exp.py [plain|malvin] /path/to/source_dir /path/to/working_dir
+    python demo/demo.py [plain|malvin] /path/to/source_dir /path/to/working_dir
 """
 
 from __future__ import annotations

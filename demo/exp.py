@@ -23,7 +23,12 @@ def discover_tasks(tasks_dir: Path) -> list[Path]:
 
 
 def ensure_workspace(target_dir: Path, grounding_src: Path) -> None:
-    target_dir.mkdir(parents=True, exist_ok=True)
+    if target_dir.exists():
+        raise click.ClickException(
+            f"Agent coding output directory already exists: {target_dir}. "
+            "Please provide a new, non-existent path."
+        )
+    target_dir.mkdir(parents=True, exist_ok=False)
     grounding_dst = target_dir / "grounding.md"
     shutil.copy2(grounding_src, grounding_dst)
 

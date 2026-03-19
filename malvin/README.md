@@ -8,6 +8,8 @@ Install [cursor-agent](https://cursor.com/blog/cli).
 
 It's also just called `agent`, but either name should work. Be sure to get yourself authenticated.
 
+Then, in `src/malvin`, type
+
 ```bash
 pip install -e .
 ```

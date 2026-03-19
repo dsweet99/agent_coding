@@ -1,13 +1,19 @@
-# Task 02 - Implement completion logging
+# TASK-02 - Training CSV Ingestion and Append Semantics
 
-Add the ability to record daily completion events for habits.
+## Summary
+Implement robust ingestion of training observations from CSV, including repeated imports.
+
+## Objective
+Support reliable data loading at scale while protecting against malformed input.
 
 ## Requirements
-- Users can mark a habit as completed for today.
-- Users can also log completion for a specific date.
-- Repeated completion logs for the same habit and date are handled safely.
-- Invalid dates are rejected with clear messaging.
+- `add-csv` must read training CSV with feature columns and target column.
+- Validate row shape against dataset dimension.
+- Reject malformed rows with actionable messages (include row information).
+- Support repeated `add-csv` calls that append observations to the same dataset.
+- Ensure partial failures do not silently corrupt stored data.
 
-## Done when
-- Completion records can be added reliably from CLI commands.
-- Date-related validation behavior is consistent.
+## Acceptance Criteria
+- Multiple `add-csv` calls for the same dataset increase training-set size cumulatively.
+- Invalid CSV content fails with clear diagnostics.
+- Previously loaded valid data remains usable after a failed add attempt.

@@ -1,13 +1,18 @@
-# Task 06 - Add data import and export
+# TASK-06 - Memory Scaling and Batch Processing
 
-Add a safe way to back up and restore tracking data.
+## Summary
+Reduce memory pressure and improve stability for 10k x 100 workloads.
+
+## Objective
+Keep memory usage bounded while preserving prediction quality and throughput.
 
 ## Requirements
-- Provide a command to export all current data to a user-specified file.
-- Provide a command to import data from a previously exported file.
-- Validate imported content before applying it.
-- Prevent accidental silent overwrites.
+- Ensure query execution avoids unbounded memory growth at benchmark scale.
+- Add/adjust batching so large CSV files are processed safely.
+- Keep repeated `add-csv` and repeated `query-csv` behavior correct.
+- Include a simple benchmark or measurement note showing memory-aware behavior.
 
-## Done when
-- Users can move data between environments with confidence.
-- Invalid import files are rejected safely.
+## Acceptance Criteria
+- The application completes train/load/query workflow at 10,000 train + 10,000 query, 100 dims.
+- No out-of-memory failures in normal local execution.
+- Results remain numerically consistent with prior validated behavior.

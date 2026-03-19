@@ -1,13 +1,19 @@
-# Task 01 - Add habit management
+# TASK-01 - Dataset Lifecycle and Persistent Metadata
 
-Implement commands to create, list, and remove habits.
+## Summary
+Harden dataset creation and persistence so datasets are reusable across separate CLI invocations.
+
+## Objective
+Ensure a created dataset can be loaded later with consistent dimensionality and identity.
 
 ## Requirements
-- Users can add a new habit by name.
-- Users can list all current habits.
-- Users can delete an existing habit by identifier or name.
-- Duplicate habit names are handled clearly.
+- Persist dataset metadata locally, including dataset name and dimension.
+- Prevent duplicate dataset creation unless an explicit overwrite option exists.
+- Validate dimension as a positive integer.
+- Return clear errors for unknown dataset names.
+- Keep behavior deterministic and predictable across runs.
 
-## Done when
-- Habit management commands work end to end.
-- Outputs are readable and unambiguous.
+## Acceptance Criteria
+- `create --dataset X --dimension 100` persists metadata and is visible to subsequent commands.
+- Re-running create for the same dataset without explicit overwrite fails with clear guidance.
+- Commands fail cleanly when a dataset has not been created.

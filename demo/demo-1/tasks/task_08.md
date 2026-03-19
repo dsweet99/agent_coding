@@ -1,12 +1,23 @@
-# Task 08 - Improve insights and reporting
+# TASK-08 - Reliability, Validation, and Error Quality
 
-Enhance progress visibility with richer summaries.
+## Summary
+Harden operational reliability and improve user-facing diagnostics.
+
+## Objective
+Make failures explicit, recoverable, and easy to troubleshoot.
 
 ## Requirements
-- Add a weekly summary report across all habits.
-- Highlight habits at risk of losing a streak.
-- Include simple completion-rate metrics for a selected date range.
-- Keep reports readable in plain terminal output.
+- Expand validation for:
+  - empty CSV files
+  - missing required columns
+  - non-numeric fields
+  - dimension mismatch
+  - empty dataset queries
+- Standardize error messages across commands.
+- Ensure failed commands do not leave partial/corrupt state.
+- Add automated tests for negative/error-path scenarios.
 
-## Done when
-- Users can run at-a-glance reports that are useful for planning the next week.
+## Acceptance Criteria
+- Common invalid-input cases return actionable errors.
+- Storage remains consistent after failures.
+- Error-path tests pass.

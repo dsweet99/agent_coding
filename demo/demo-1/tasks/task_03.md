@@ -1,13 +1,19 @@
-# Task 03 - Add streak and history views
+# TASK-03 - First Real KNN Regression Implementation
 
-Implement progress reporting so users can understand consistency.
+## Summary
+Replace placeholder prediction with real KNN regression using Python and NumPy only.
+
+## Objective
+Produce numerically valid predictions based on nearest-neighbor averaging.
 
 ## Requirements
-- Show each habit's current streak.
-- Show each habit's longest streak.
-- Show recent completion history for a selected habit.
-- Keep output formatting concise and easy to scan in terminal.
+- Implement KNN regression logic in the application.
+- Use only Python standard library + NumPy.
+- No external KNN or scientific/maths libraries beyond NumPy.
+- `query-csv` must read feature rows and write one prediction per row.
+- Validate input dimension and fail clearly on mismatch.
 
-## Done when
-- Users can inspect streak and history information through CLI commands.
-- Reported values are correct for typical and edge-case timelines.
+## Acceptance Criteria
+- Predictions change based on training data and query input (no constant fallback behavior).
+- Query with valid data produces numeric outputs for all rows.
+- Invalid feature shapes are rejected with explicit error messaging.

@@ -67,13 +67,14 @@ def main(mode: str, source_dir: Path, agent_coding_output_path: Path) -> None:
     assert mode in ["plain", "malvin"], f"Invalid mode: {mode}"
     source_dir = source_dir.expanduser().resolve()
     grounding_src = source_dir / "grounding.md"
+    tasks_dir = source_dir / "tasks"
     target_dir = agent_coding_output_path.expanduser().resolve()
 
     if not grounding_src.is_file():
         raise click.ClickException(f"Missing grounding file: {grounding_src}")
 
     try:
-        tasks = discover_tasks(source_dir)
+        tasks = discover_tasks(tasks_dir)
     except RuntimeError as exc:
         raise click.ClickException(str(exc)) from exc
 

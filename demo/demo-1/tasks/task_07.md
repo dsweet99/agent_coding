@@ -1,12 +1,26 @@
-# Task 07 - Add editing and correction workflows
+# TASK-07 - Decision Ticket: Dataset Storage Format
 
-Improve usability by supporting corrections to existing records.
+## Summary
+Choose the data storage format that best meets speed and memory objectives for repeated loads/queries.
+
+## Objective
+Optimize dataset persistence for practical CLI usage under benchmark conditions.
+
+## Decision Required
+Implement either approach A or B, then keep whichever best meets objective criteria:
+- **A:** CSV-centric persisted storage
+- **B:** NumPy-native binary persisted storage (for example `.npy` / `.npz`)
 
 ## Requirements
-- Allow users to edit a habit name and description.
-- Allow users to remove an incorrectly logged completion for a date.
-- Keep command behavior explicit to reduce accidental destructive actions.
-- Ensure streak/report outputs reflect corrected data immediately.
+- Compare both options on:
+  - dataset load time
+  - query startup latency
+  - on-disk size
+- Validate that repeated `add-csv` remains correct.
+- Document measured outcomes and chosen format.
+- Keep output behavior and CLI contract unchanged.
 
-## Done when
-- Users can safely correct mistakes without manual data file edits.
+## Acceptance Criteria
+- A measurable comparison artifact/report exists for A vs B.
+- Selected format is justified by objective metrics.
+- Existing commands continue to operate with unchanged flags and semantics.

@@ -21,3 +21,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 malvin = ["default_prompts/*.md", "*.j2"]
+
+[tool.ruff]
+exclude = ["demo/"]

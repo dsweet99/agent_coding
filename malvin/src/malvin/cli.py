@@ -66,7 +66,7 @@ def _cli_decorators(function):  # noqa: ANN001
         ),
         click.option(
             "--learn/--no-learn",
-            default=False,
+            default=True,
             show_default=True,
             help="Run learn.md with coder agent at end of workflow.",
         ),

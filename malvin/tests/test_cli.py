@@ -119,7 +119,7 @@ def test_cli_uses_defaults_and_prints_run_directory(
     assert DummyClient.instances[-1].tee_json is False
     assert DummyClient.instances[-1].auth_checked is True
     assert DummyOrchestrator.instances[-1].config.max_loops == 5
-    assert DummyOrchestrator.instances[-1].config.run_learn is False
+    assert DummyOrchestrator.instances[-1].config.run_learn is True
     assert DummyOrchestrator.instances[-1].ran is True
 
 
@@ -276,7 +276,7 @@ def test_main_callback_success_prints_done(monkeypatch: pytest.MonkeyPatch, tmp_
         assert options.max_loops == 5
         assert options.tee is False
         assert options.tee_json is False
-        assert options.learn is False
+        assert options.learn is True
 
     monkeypatch.setattr(cli_module, "_run_workflow", fake_run)
     monkeypatch.setattr(
@@ -292,7 +292,7 @@ def test_main_callback_success_prints_done(monkeypatch: pytest.MonkeyPatch, tmp_
         max_loops=5,
         tee=False,
         tee_json=False,
-        learn=False,
+        learn=True,
     )
 
     assert seen["called"] is True

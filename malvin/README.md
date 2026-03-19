@@ -32,7 +32,7 @@ Both agents were aware of the `grounding.md` file.  Their output is in `demo/dem
 
 
 ### Results: malvin
-`malvin` worked:
+`malvin`'s code worked:
 ```
 $ ./demo-1/evaluate.py 'python /home/dsweet/out/malvin/knn_cli/cli.py'
 EVAL_RESULT dataset=benchmark seed=20260318 n_train=10000 n_test=10000 dimension=100 train_chunks=10 test_chunks=10 rmse=8.40451281 time_create_s=0.185535 time_add_s=2.406298 time_query_s=5.944037 time_total_s=8.535871
@@ -48,7 +48,7 @@ Behavior is tested well: repeated query calls, row-order preservation, error pat
 ```
 
 ### Results: plain
-Plain `cursor-agent` did not run according to spec.
+Plain `cursor-agent`'s code did not run according to spec.
 
 It failed with
 ```

@@ -48,7 +48,9 @@ Behavior is tested well: repeated query calls, row-order preservation, error pat
 ```
 
 ### Results: plain
-Plain `cursor-agent` did not run according to spec. It failed with
+Plain `cursor-agent` did not run according to spec.
+
+It failed with
 ```
 $ ./demo-1/evaluate.py 'python /home/dsweet/out/plain/knn_cli.py'
 Traceback (most recent call last):

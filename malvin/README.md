@@ -14,6 +14,13 @@ Then, in `src/malvin`, type
 pip install -e .
 ```
 
+`malvin` likes `ruff` and `kiss`:
+```bash
+cargo install kiss-ai
+```
+
+[kiss](https://github.com/dsweet99/kiss) is like `ruff` but for code complexity.
+
 ## Usage
 ```
 malvin plan.md

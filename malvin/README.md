@@ -4,7 +4,8 @@
 
 ## Installation
 
-Install `cursor-agent`: [https://cursor.com/blog/cli](https://cursor.com/blog/cli)
+Install [cursor-agent](https://cursor.com/blog/cli).
+
 It's also just called `agent`, but either name should work. Be sure to get yourself authenticated.
 
 ```bash

@@ -1,14 +1,18 @@
-End-of-session:
 
-1) What new, durable info came out of this chat? (skip repeats)
+1) What *new*, interesting/surprising things did you learn in this chat about?:
 - Codebase structure (where things live)
 - Algorithms/methods + notable results
 - Tooling/workflow constraints (commands, env gotchas, quality gates)
-- The user's preferences (communication/debugging style)
+- The user's preferences (about coding or communication)
+- Agent efficiency
+- Code quality
 
-2) Summarize it as a short bullet list.
+2) Summarize them as a short bullet list.
 
-3) Edit `.style/main.md` to incorporate the new info.
-- Keep `.style/main.md` < 100 lines; focus on highest-priority rules and index entries.
-- Don't lose information: Consolidate into broader rules and/or move detail into `.style/<topic>.md`. Add one or more triggers to .style/main.md telling when to look in the new file.
+3) Edit `./.llm_style/style.md` to incorporate the new info.
+- Store as TRIGGER:/ADVICE: pairs, in this format
+TRIGGER: 1-4 keywords or phrases, where phrases are 1-3 words
+ADVICE: A briefly-stated action to take, like "Read <file>" or "Use <tool/approach/method, with instructions>" or "Check for <problem/benefit>" etc.
+- Keep `./.llm_style/style.md` < 100 lines; focus on highest-priority rules and index entries.
+- Don't lose information: Consolidate into broader rules and/or move detail into `./.llm_style/<topic>.md`.
 - Keep commands and hard constraints exact.

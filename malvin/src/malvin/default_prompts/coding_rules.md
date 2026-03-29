@@ -20,7 +20,7 @@ AFTER EVERY REQUEST: Does the user's request relate to any of the TRIGGER words 
 --
 
 
-Use parallelized subagents.
+Use parallelized subagents (at most 4).
 
 Work until the end without asking for user input. If you are uncertain about an implementation
 detail, use your best judgement. There will always be an opportunity to revise later on.

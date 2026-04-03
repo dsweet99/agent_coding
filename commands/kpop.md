@@ -8,5 +8,5 @@ do
 
 until you think you've solved the problem
 
-Log your hypotheses and test results -- as they become available -- to a file name exp_log_{name}.md, where
+Log your hypotheses and test results -- as they become available -- to a file named exp_log_{name}.md, where
  you choose a semantically-reasonable name, unless the user specifies one.
